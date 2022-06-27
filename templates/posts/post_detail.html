@@ -6,7 +6,7 @@
 {% endblock %} 
     {%block content%}
       <div class="row">
-        <aside class="col-12 col-md-3">
+        <aside class="col-12 col-md-4">
           <ul class="list-group list-group-flush">
             <li class="list-group-item">
               Дата публикации: {{ post.pub_date|date:"d E Y" }}
@@ -39,6 +39,9 @@
           <p>
             {{ post.text|truncatechars_html:30 }}
           </p>
+          <a class="btn btn-primary" href="{% url 'posts:post_edit' post.id %}">
+            редактировать запись
+          </a> 
         </article>
       </div> 
     {% endblock %}

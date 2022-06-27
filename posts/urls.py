@@ -18,13 +18,18 @@ urlpatterns = [
     ),
     # Просмотр записи
     path(
-        'posts/<int:post_id>/',
+        'post_detail/<post_id>/',
         views.post_detail,
         name='post_detail'
     ),
     path(
-        'create_post/',
+        'post_create/',
         views.post_create,
         name='post_create'
     ),
+    path(
+        'posts/<int:post_id>/edit/',
+        views.post_edit,
+        name='post_edit'
+    )
 ]

@@ -1,3 +1,4 @@
+from django import forms
 from django.core.paginator import Paginator
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
@@ -33,7 +34,7 @@ def group_posts(request, slug):
 
 
 def profile(request, username):
-    # функция getobj получает по заданным кретериям объект из базы данных 
+    # функция getobj получает по заданным критериям объект из базы данных 
     author = get_object_or_404(User, username=username)
     # отфильтровываем по авторы посты
     posts = author.posts.select_related('group', 'author')
@@ -63,17 +64,39 @@ def post_detail(request, post_id):
     }
     return render(request, 'posts/post_detail.html', context)
 
+@login_required
 def post_create(request):
     '''Страница для публикации постов'''
     if request.method == 'POST':
         form = PostForm(request.POST)
-        if form.is_valid:
-            text = forms.cleaned_data
-            fields = forms.cleaned_data
-            return redirect('posts:profile')
+        if form.is_valid():
+            post = form.save(False)
+            post.author = request.user
+            form.save()
+            return redirect('posts:profile',username=post.author)
 
-        return render(request, 'create_post.html', {'form':form})
+        return render(request, 'posts/create_post.html', {'form':form})
     
     form = PostForm()
-    return render(request, 'create_post.html', {'form':form})
+    return render(request, 'posts/create_post.html', {'form':form})
+
+def post_edit(request, post_id):
+    '''страницу редактирования записи'''
+    post = get_object_or_404(Post, pk=post_id)
+    if request.user != post.author:
+        return rederict ('posts:post_detail.html')
+    else:
+        if request.method == 'POST':
+            form = PostForm(request.POST, instance=post)
+            if form.is_valid():
+                post = form.save(commit=False)
+                post.author = request.user
+                post.save()
+                return redirect('posts:post_detail', id=post_id)
+            else:
+                form = PostForm(instance=post)
+        return render(request, 'posts/create_post.html', {'form': form,
+                                                          'is_edit': True})
+    
+
 
